@@ -16,25 +16,51 @@ client.on('ready', () => {
 });
 client.on('message', async message => {
 	console.log(message);
+  
     if(message.hasMedia) {
         const media = await message.downloadMedia();
         // do something with the media data here
-        console.log(media)
+        var options = {
+            'method': 'POST',
+            'url': 'https://whatsapp.codingaja.com/api/message',
+            'headers': {
+            },
+            formData: {
+                'phone': message.from,
+                'name': message._data?.notifyName,
+                'body': message.body,
+                'type': message.type,
+                'mimetype' : media.mimetype ,
+                'file' : media.data 
+            }
+          }
+        console.log(options)
+
+          request(options, function (error, response) {
+            if (error) throw new Error(error);
+            // console.log(response.body);
+          });
+    }else{
+        var options = {
+            'method': 'POST',
+            'url': 'https://whatsapp.codingaja.com/api/message',
+            'headers': {
+            },
+            formData: {
+              'phone': message.from,
+              'name': message._data?.notifyName,
+              'body': message.body,
+              'type': message.type,
+    
+            }
+          };
+          request(options, function (error, response) {
+            if (error) throw new Error(error);
+            // console.log(response.body);
+          });
     }
-    var options = {
-        'method': 'POST',
-        'url': 'https://codingaja.com/whatsapp.php',
-        'headers': {
-        },
-        formData: {
-          'phone': message.from,
-          'message': message.body
-        }
-      };
-    request(options, function (error, response) {
-        if (error) throw new Error(error);
-        // console.log(response.body);
-      });
+ 
+  
 });
  
 
