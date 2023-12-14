@@ -1,14 +1,15 @@
 const qrcode = require('qrcode-terminal');
 const fs = require('fs');
 var request = require('request');
+const axios = require('axios');
 
 
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const client = new Client({
     restartOnAuthFail: true,
     puppeteer: {
-        // executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-        executablePath: '/usr/bin/google-chrome-stable',
+        executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+        // executablePath: '/usr/bin/google-chrome-stable',
         headless: true,
         args: [
           '--no-sandbox',
@@ -79,17 +80,20 @@ for (const chat of chats) {
     onChat: extractedData,
   };
 
-  var options = {
-    'method': 'POST',
-    'url': 'localhost/api/message',
-    'headers': {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(contactInfo)}
-    request(options, function (error, response) {
-      if (error) throw new Error(error);
-      console.log(response.body);
-    });
+
+  await storeData(JSON.stringify(contactInfo));
+  // var options = {
+  //   'method': 'POST',
+  //   'url': 'http://whatsapp.codingaja.com/api/message',
+   
+  //   body: JSON.stringify(contactInfo)}
+  //   request(options, function (error, response) {
+  //     if (error) throw new Error(error);
+  //     console.log(response.body);
+  //   });
+
+
+    // exit;
   // Add the extractedData to the array
   // allExtractedData.push(contactInfo);
   // const dir = 'backup/'+client.info.me._serialized;
@@ -110,7 +114,7 @@ for (const chat of chats) {
 
 });
 client.on('message', async message => {
-	console.log(message);
+	// console.log(message);
   const extractedMessage = {
     ack: message.ack,
     from: message.from,
@@ -143,6 +147,9 @@ client.on('message', async message => {
     avatar: avatar,
     onChat: extractedMessage,
   };
+
+  await storeData(JSON.stringify(contactInfo));
+
 
   // console.log(contactInfo);
     // if(message.hasMedia) {
@@ -193,4 +200,24 @@ client.on('message', async message => {
  
 
 client.initialize();
+
+async function storeData(payload) {
+  const options = {
+    method: 'POST',
+    url: 'http://whatsapp.codingaja.com/api/message',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    // Add your request body here
+    data: payload,
+  };
+
+  try {
+    const response = await axios(options);
+    console.log(response.data); // Handle the response as needed
+  } catch (error) {
+    console.error('Error sending message:', error.message);
+  }
+}
+
  
