@@ -7,8 +7,8 @@ const { Client, LocalAuth } = require('whatsapp-web.js');
 const client = new Client({
     restartOnAuthFail: true,
     puppeteer: {
-        executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-        // executablePath: '/usr/bin/google-chrome-stable',
+        // executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+        executablePath: '/usr/bin/google-chrome-stable',
         headless: true,
         args: [
           '--no-sandbox',
