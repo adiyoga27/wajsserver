@@ -85,18 +85,18 @@ for (const chat of chats) {
     'headers': {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify()}
+    body: JSON.stringify(contactInfo)}
     request(options, function (error, response) {
       if (error) throw new Error(error);
       console.log(response.body);
     });
   // Add the extractedData to the array
   // allExtractedData.push(contactInfo);
-  const dir = 'backup/'+client.info.me._serialized;
-  if (!fs.existsSync(dir)){
-    fs.mkdirSync(dir, { recursive: true });
-  }
-  fs.writeFileSync(dir+"/"+contactInfo.chatId+'.json', JSON.stringify(contactInfo, null, 2));
+  // const dir = 'backup/'+client.info.me._serialized;
+  // if (!fs.existsSync(dir)){
+  //   fs.mkdirSync(dir, { recursive: true });
+  // }
+  // fs.writeFileSync(dir+"/"+contactInfo.chatId+'.json', JSON.stringify(contactInfo, null, 2));
 }
 // const jsonFilePath = 'allExtractedData.json';
 // fs.writeFileSync(jsonFilePath, JSON.stringify(allExtractedData, null, 2));
@@ -144,7 +144,7 @@ client.on('message', async message => {
     onChat: extractedMessage,
   };
 
-  console.log(contactInfo);
+  // console.log(contactInfo);
     // if(message.hasMedia) {
     //     const media = await message.downloadMedia();
     //     // do something with the media data here
