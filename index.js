@@ -8,8 +8,8 @@ const { Client, LocalAuth } = require('whatsapp-web.js');
 const client = new Client({
     restartOnAuthFail: true,
     puppeteer: {
-        executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-        // executablePath: '/usr/bin/google-chrome-stable',
+        //executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+        executablePath: '/usr/bin/google-chrome-stable',
         headless: true,
         args: [
           '--no-sandbox',
@@ -80,7 +80,7 @@ for (const chat of chats) {
     onChat: extractedData,
   };
 
-
+	console.client.info.me._serialized;
   await storeData(JSON.stringify(contactInfo));
   // var options = {
   //   'method': 'POST',
@@ -115,6 +115,7 @@ for (const chat of chats) {
 });
 client.on('message', async message => {
 	// console.log(message);
+  const messagesData = [];
   const extractedMessage = {
     ack: message.ack,
     from: message.from,
@@ -139,13 +140,15 @@ client.on('message', async message => {
   }
   const info = await message.getContact();
   const avatar = await info.getProfilePicUrl();
+  messagesData.push(extractedMessage);
+  
   const contactInfo = {
     deviceId: client.info.me._serialized,
     chatId: message.id.remote,
     isGroup: info.isGroup,
     name: info.pushname,
     avatar: avatar,
-    onChat: extractedMessage,
+    onChat: messagesData,
   };
 
   await storeData(JSON.stringify(contactInfo));
@@ -204,7 +207,7 @@ client.initialize();
 async function storeData(payload) {
   const options = {
     method: 'POST',
-    url: 'http://whatsapp.codingaja.com/api/message',
+    url: 'https://whatsapp.codingaja.com/api/message',
     headers: {
       'Content-Type': 'application/json',
     },
