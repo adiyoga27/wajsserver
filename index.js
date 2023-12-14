@@ -36,9 +36,9 @@ client.on('ready',async () => {
  
 // Iterate through each chat
 for (const chat of chats) {
-  console.log(chat);
+  // console.log(chat);
   // Fetch messages for the current chat
-  const messages = await chat.fetchMessages({ limit: 100 });
+  const messages = await chat.fetchMessages({ limit: 10000 });
 
   // Extracted data for each message
   const extractedData = await Promise.all(messages.map(async (message) => {
@@ -68,19 +68,38 @@ for (const chat of chats) {
     return extractedMessage;
   }));
 
+  const avatar =  await client.getProfilePicUrl(chat.id._serialized);
   // Contact information for the current chat
   const contactInfo = {
-    id: chat.id,
+    deviceId: client.info.me._serialized,
+    chatId: chat.id._serialized,
     isGroup: chat.isGroup,
     name: chat.name,
+    avatar: avatar,
     onChat: extractedData,
   };
 
+  var options = {
+    'method': 'POST',
+    'url': 'localhost/api/message',
+    'headers': {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify()}
+    request(options, function (error, response) {
+      if (error) throw new Error(error);
+      console.log(response.body);
+    });
   // Add the extractedData to the array
-  allExtractedData.push(contactInfo);
+  // allExtractedData.push(contactInfo);
+  const dir = 'backup/'+client.info.me._serialized;
+  if (!fs.existsSync(dir)){
+    fs.mkdirSync(dir, { recursive: true });
+  }
+  fs.writeFileSync(dir+"/"+contactInfo.chatId+'.json', JSON.stringify(contactInfo, null, 2));
 }
-const jsonFilePath = 'allExtractedData.json';
-fs.writeFileSync(jsonFilePath, JSON.stringify(allExtractedData, null, 2));
+// const jsonFilePath = 'allExtractedData.json';
+// fs.writeFileSync(jsonFilePath, JSON.stringify(allExtractedData, null, 2));
 
 
 // console.log(allExtractedData);
@@ -92,49 +111,82 @@ fs.writeFileSync(jsonFilePath, JSON.stringify(allExtractedData, null, 2));
 });
 client.on('message', async message => {
 	console.log(message);
-  
-    if(message.hasMedia) {
-        const media = await message.downloadMedia();
-        // do something with the media data here
-        var options = {
-            'method': 'POST',
-            'url': 'https://whatsapp.codingaja.com/api/message',
-            'headers': {
-            },
-            formData: {
-                'phone': message.from,
-                'name': message._data?.notifyName,
-                'body': message.body,
-                'type': message.type,
-                'mimetype' : media.mimetype ,
-                'file' : media.data 
-            }
-          }
-        console.log(options)
+  const extractedMessage = {
+    ack: message.ack,
+    from: message.from,
+    to: message.to,
+    author: message.author,
+    type: message.type,
+    body: message.body,
+    fromMe: message.fromMe,
+    hasMedia: message.hasMedia,
+    timestamp: message.timestamp,
+    deviceType: message.deviceType,
+  };
 
-          request(options, function (error, response) {
-            if (error) throw new Error(error);
-            // console.log(response.body);
-          });
-    }else{
-        var options = {
-            'method': 'POST',
-            'url': 'https://whatsapp.codingaja.com/api/message',
-            'headers': {
-            },
-            formData: {
-              'phone': message.from,
-              'name': message._data?.notifyName,
-              'body': message.body,
-              'type': message.type,
-    
-            }
-          };
-          request(options, function (error, response) {
-            if (error) throw new Error(error);
-            // console.log(response.body);
-          });
+  if (message.hasMedia) {
+    try {
+      // Download media and add it to the extracted message
+      const mediaFile = await message.downloadMedia();
+      extractedMessage.mediaFile = mediaFile;
+    } catch (error) {
+      console.error('Error downloading media:', error);
     }
+  }
+  const info = await message.getContact();
+  const avatar = await info.getProfilePicUrl();
+  const contactInfo = {
+    deviceId: client.info.me._serialized,
+    chatId: message.id.remote,
+    isGroup: info.isGroup,
+    name: info.pushname,
+    avatar: avatar,
+    onChat: extractedMessage,
+  };
+
+  console.log(contactInfo);
+    // if(message.hasMedia) {
+    //     const media = await message.downloadMedia();
+    //     // do something with the media data here
+    //     var options = {
+    //         'method': 'POST',
+    //         'url': 'https://whatsapp.codingaja.com/api/message',
+    //         'headers': {
+    //         },
+    //         formData: {
+    //             'phone': message.from,
+    //             'name': message._data?.notifyName,
+    //             'body': message.body,
+    //             'type': message.type,
+    //             'mimetype' : media.mimetype ,
+    //             'file' : media.data 
+    //         }
+    //       }
+    //     console.log(options)
+
+    //       request(options, function (error, response) {
+    //         if (error) throw new Error(error);
+    //         // console.log(response.body);
+    //       });
+    // }else{
+    //     var options = {
+    //         'method': 'POST',
+    //         'url': 'https://whatsapp.codingaja.com/api/message',
+    //         'headers': {
+    //         },
+    //         formData: {
+    //           'phone': message.from,
+    //           'name': message._data?.notifyName,
+    //           'body': message.body,
+    //           'type': message.type,
+    
+    //         }
+    //       };
+    //       request(options, function (error, response) {
+    //         if (error) throw new Error(error);
+    //         // console.log(response.body);
+    //       });
+    // }
  
   
 });
