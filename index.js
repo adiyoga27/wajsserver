@@ -8,8 +8,8 @@ const { Client, LocalAuth } = require('whatsapp-web.js');
 const client = new Client({
     restartOnAuthFail: true,
     puppeteer: {
-        //executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-        executablePath: '/usr/bin/google-chrome-stable',
+        executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+        // executablePath: '/usr/bin/google-chrome-stable',
         headless: true,
         args: [
           '--no-sandbox',
@@ -34,12 +34,12 @@ client.on('ready',async () => {
     console.log('Client is ready!');
     const allExtractedData = [];
     const chats = await client.getChats()
- 
+    const deviceId = client.info.me._serialized;
 // Iterate through each chat
 for (const chat of chats) {
   // console.log(chat);
   // Fetch messages for the current chat
-  const messages = await chat.fetchMessages({ limit: 10000 });
+  const messages = await chat.fetchMessages({ limit: 100 });
 
   // Extracted data for each message
   const extractedData = await Promise.all(messages.map(async (message) => {
@@ -72,15 +72,15 @@ for (const chat of chats) {
   const avatar =  await client.getProfilePicUrl(chat.id._serialized);
   // Contact information for the current chat
   const contactInfo = {
-    deviceId: client.info.me._serialized,
+    deviceId: deviceId,
     chatId: chat.id._serialized,
     isGroup: chat.isGroup,
     name: chat.name,
     avatar: avatar,
     onChat: extractedData,
   };
+  console.log(chat.id._serialized)
 
-	console.client.info.me._serialized;
   await storeData(JSON.stringify(contactInfo));
   // var options = {
   //   'method': 'POST',
@@ -95,12 +95,12 @@ for (const chat of chats) {
 
     // exit;
   // Add the extractedData to the array
-  // allExtractedData.push(contactInfo);
-  // const dir = 'backup/'+client.info.me._serialized;
-  // if (!fs.existsSync(dir)){
-  //   fs.mkdirSync(dir, { recursive: true });
-  // }
-  // fs.writeFileSync(dir+"/"+contactInfo.chatId+'.json', JSON.stringify(contactInfo, null, 2));
+  allExtractedData.push(contactInfo);
+  const dir = 'backup/'+client.info.me._serialized;
+  if (!fs.existsSync(dir)){
+    fs.mkdirSync(dir, { recursive: true });
+  }
+  fs.writeFileSync(dir+"/"+contactInfo.chatId+'.json', JSON.stringify(contactInfo, null, 2));
 }
 // const jsonFilePath = 'allExtractedData.json';
 // fs.writeFileSync(jsonFilePath, JSON.stringify(allExtractedData, null, 2));
@@ -150,7 +150,7 @@ client.on('message', async message => {
     avatar: avatar,
     onChat: messagesData,
   };
-
+  console.log(client.info.me._serialized)
   await storeData(JSON.stringify(contactInfo));
 
 
@@ -214,6 +214,8 @@ async function storeData(payload) {
     // Add your request body here
     data: payload,
   };
+
+  // console.log(options);
 
   try {
     const response = await axios(options);
