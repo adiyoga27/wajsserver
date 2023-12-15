@@ -95,12 +95,12 @@ for (const chat of chats) {
 
     // exit;
   // Add the extractedData to the array
-  allExtractedData.push(contactInfo);
-  const dir = 'backup/'+client.info.me._serialized;
-  if (!fs.existsSync(dir)){
-    fs.mkdirSync(dir, { recursive: true });
-  }
-  fs.writeFileSync(dir+"/"+contactInfo.chatId+'.json', JSON.stringify(contactInfo, null, 2));
+  // allExtractedData.push(contactInfo);
+  // const dir = 'backup/'+client.info.me._serialized;
+  // if (!fs.existsSync(dir)){
+  //   fs.mkdirSync(dir, { recursive: true });
+  // }
+  // fs.writeFileSync(dir+"/"+contactInfo.chatId+'.json', JSON.stringify(contactInfo, null, 2));
 }
 // const jsonFilePath = 'allExtractedData.json';
 // fs.writeFileSync(jsonFilePath, JSON.stringify(allExtractedData, null, 2));
@@ -150,7 +150,7 @@ client.on('message', async message => {
     avatar: avatar,
     onChat: messagesData,
   };
-  console.log(client.info.me._serialized)
+  console.log(message.id.remote)
   await storeData(JSON.stringify(contactInfo));
 
 
